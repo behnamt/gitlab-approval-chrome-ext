@@ -22,7 +22,6 @@ function getApprovals (projectId, mergeRequestId) {
  * @returns xhr response.
  */
 function getAwardEmoji (projectId, mergeRequestId) {
-  console.log(`Fetching award emojies... (MR iid: ${mergeRequestId})`)
   return makeXhrRequest(
     HTTP_GET,
     `${svcHost}/projects/${projectId}/merge_requests/${mergeRequestId}/award_emoji/`

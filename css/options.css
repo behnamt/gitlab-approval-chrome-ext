@@ -2,6 +2,20 @@ img.avatar.avatar-inline.w30 {
     width: 30px;
     height: 30px;
 }
+img.avatar.avatar-inline.w30.red {
+    border-color: red;
+    border-width: 2px;
+}
+span.avatar.avatar-inline.avatar-placeholder {
+    width: 30px;
+    height: 30px;
+    margin-top: 6px;
+}
+
+img.avatar.avatar-inline.w30.green {
+    border-color: forestgreen;
+    border-width: 2px;
+}
 
 .avatar-award-emoji {
     position: relative;
