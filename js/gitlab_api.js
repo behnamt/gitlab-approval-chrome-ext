@@ -17,6 +17,19 @@ function getApprovals (projectId, mergeRequestId) {
 }
 
 /**
+ * Fetches all approvals for a given Merge Request using its iid via an Xhr request.
+ * @param {Integer} mergeRequestId the merge request iid.
+ * @returns xhr response.
+ */
+function getAwardEmoji (projectId, mergeRequestId) {
+  console.log(`Fetching award emojies... (MR iid: ${mergeRequestId})`)
+  return makeXhrRequest(
+    HTTP_GET,
+    `${svcHost}/projects/${projectId}/merge_requests/${mergeRequestId}/award_emoji/`
+  )
+}
+
+/**
  * Fetches all project Ids for a given group via an Xhr request.
  * @param {Integer} groupId the group id.
  * @returns xhr response.

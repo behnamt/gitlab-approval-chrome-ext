@@ -1,21 +1,24 @@
 {
     "name": "GitLab Approvals",
-    "version": "1.3.3",
+    "background": {
+        "scripts": ["js/show_approvals.js"]
+    },
+    "version": "1.3.26",
     "description": "Displays the approvals for a given MR within the MR list.",
-    "manifest_version": 2,
+    "manifest_version": 7,
     "content_scripts": [
         {
             "run_at": "document_end",
             "matches": [
-                "https://*.gitlab.com/*/merge_requests*",
-                "https://*.nordstrom.com/*/merge_requests*"
+                "https://*.votum.io/*/merge_requests*"
             ],
             "js": [
                 "thirdparty/jquery.min.js",
                 "js/gitlab_api.js",
                 "js/show_approvals.js",
                 "js/cache_util.js"
-            ]
+            ],
+            "css": ["css/options.css"]
         }
     ],
     "permissions": [

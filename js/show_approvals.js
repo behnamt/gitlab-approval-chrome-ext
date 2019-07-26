@@ -69,7 +69,11 @@ function onCacheEntryChecked (projectId, requestIid, mergeRequestView, cachedMer
     parseApprovals(projectId, requestIid, mergeRequestView)
   } else {
     // console.log(`Using cached entry (MR IID: ${requestIid} Project ID: ${projectId})`)
-    handleMergeRequestApprovalInjection(requestIid, cachedMergeRequest, mergeRequestView)
+    getAwardEmoji(projectId, requestIid)
+        .then(function (mergeRequestAwardEmojis) {
+          var awardEmojis = handleMergeRequestmergeRequestAwardEmojis(mergeRequestAwardEmojis)
+          handleMergeRequestApprovalInjection(requestIid, cachedMergeRequest, mergeRequestView, awardEmojis)
+        })
   }
 }
 
@@ -80,11 +84,27 @@ function onCacheEntryChecked (projectId, requestIid, mergeRequestView, cachedMer
  * @param {Element} requestView the HTML element reference to the Merge Request row.
  */
 function parseApprovals (projectId, mergeRequestId, requestView) {
-  getApprovals(projectId, mergeRequestId)
-    .then(function (mergeRequest) {
-      cacheMergeRequest(`${projectId}:${mergeRequestId}`, mergeRequest)
-      handleMergeRequestApprovalInjection(mergeRequestId, mergeRequest, requestView)
-    })
+  getAwardEmoji(projectId, mergeRequestId)
+      .then(function (mergeRequestAwardEmojis) {
+        var awardEmojis = handleMergeRequestmergeRequestAwardEmojis(mergeRequestAwardEmojis)
+        getApprovals(projectId, mergeRequestId)
+            .then(function (mergeRequest) {
+              cacheMergeRequest(`${projectId}:${mergeRequestId}`, mergeRequest)
+              handleMergeRequestApprovalInjection(mergeRequestId, mergeRequest, requestView, awardEmojis)
+            })
+      })
+
+
+}
+
+function handleMergeRequestmergeRequestAwardEmojis(mergeRequestAwardEmojis) {
+  var list = mergeRequestAwardEmojis.filter(awardEmojiObj => awardEmojiObj.name === 'thumbsup' || awardEmojiObj.name === 'thumbsdown').map(awardEmojiObj => {
+    return {
+      userId: awardEmojiObj.user.id,
+      name: awardEmojiObj.name === 'thumbsup' ? '&#128077;' : '&#x1f44e;'
+    }
+  })
+  return list || []
 }
 
 /**
@@ -93,7 +113,7 @@ function parseApprovals (projectId, mergeRequestId, requestView) {
  * @param {Object.MergeRequest} mergeRequest the merge request data to inject.
  * @param {Element} requestView the view to inject the data into.
  */
-function handleMergeRequestApprovalInjection (mergeRequestId, mergeRequest, requestView) {
+function handleMergeRequestApprovalInjection (mergeRequestId, mergeRequest, requestView, awardEmojis) {
   // Add the larger author div
   if (authorEnabled) {
     injectAuthorView(requestView)
@@ -101,7 +121,7 @@ function handleMergeRequestApprovalInjection (mergeRequestId, mergeRequest, requ
 
   // Add the approval divs
   if (compactApprovals) {
-    injectApprovalListCompact(requestView, mergeRequest.approvals_left, mergeRequest.approved_by)
+    injectApprovalListCompact(requestView, mergeRequest.approvals_left - mergeRequest.approvers.length, mergeRequest.approved_by, awardEmojis)
   } else {
     injectApprovalList(requestView, mergeRequest.approvals_left, mergeRequest.approved_by)
   }
@@ -140,11 +160,12 @@ function injectApprovalList (requestView, requiredApprovalsLeft, approvalUsers) 
  * @param {Integer} requiredApprovalsLeft the number of approvals left to allow for a merge.
  * @param {List<GitLab.User>} approvalUsers the users that have approved this Merge Request.
  */
-function injectApprovalListCompact (requestView, requiredApprovalsLeft, approvalUsers) {
+function injectApprovalListCompact (requestView, requiredApprovalsLeft, approvalUsers, awardEmojis) {
   // Create the initial divs that wrap the approvals -- similar to the one found when viewing the MR
   let listContainer = `<div class="approved-by-users approvals-footer"><div class="approvers-prefix"><div class="approvers-list">`
   approvalUsers.forEach(entry => {
-    listContainer += createApprovalDiv(entry.user)
+    var emoji = awardEmojis.find(awardEmoji => awardEmoji.userId === entry.user.id)
+    listContainer += createApprovalDiv(entry.user, emoji)
   })
 
   // Insert required approval slots (if any are needed)
@@ -190,11 +211,12 @@ function injectAuthorView (requestView) {
  * Generates a div based on the provided user info.
  * @param {Object.User} user an user approval object from the GitLab API.
  */
-function createApprovalDiv (user) {
+function createApprovalDiv (user, emoji) {
   return `
   <div class='link-to-member-avatar'>
     <a class="author_link has-tooltip approver-avatar js-approver-list-member" data-container="body" href="/${user.username}" data-original-title="Approved by ${user.name}">
-      <img width="20" class="avatar avatar-inline s20 js-lazy-loaded" alt="" src="${user.avatar_url}">
+      <img width="30" class="avatar avatar-inline s20 js-lazy-loaded w30" alt="" src="${user.avatar_url}">
+      <div class="avatar-award-emoji">${emoji ? emoji.name : ''}</div>
     </a>
   </div>`
 }

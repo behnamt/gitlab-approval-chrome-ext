@@ -1,13 +1,12 @@
-#options-container {
-    background: #E8F1F2;
-    height: 100vh;
-    width: 100%;
+img.avatar.avatar-inline.w30 {
+    width: 30px;
+    height: 30px;
 }
 
-.withspace-md {
-    padding: 20px;
-}
-
-.withspace-sm {
-    padding: 10px;
+.avatar-award-emoji {
+    position: relative;
+    display: inline;
+    top: 10px;
+    left: auto;
+    right: 22px;
 }
