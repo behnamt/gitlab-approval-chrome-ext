@@ -16,7 +16,8 @@
                 "thirdparty/jquery.min.js",
                 "js/gitlab_api.js",
                 "js/show_approvals.js",
-                "js/cache_util.js"
+                "js/cache_util.js",
+                "js/qa_links.js"
             ],
             "css": ["css/options.css"]
         }
