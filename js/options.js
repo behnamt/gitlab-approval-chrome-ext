@@ -4,6 +4,8 @@
 var compactApprovalCheckbox = 'input[name=compact-approval]'
 var authorCheckbox = 'input[name=author]'
 var autoRemoveCheckbox = 'input[name=auto-select-force-remove]'
+var apiKeyInput = 'input[name=api-key]'
+var apiKeySubmit = 'input[name=api-key-submit]'
 
 $("#clear-cache").click(function () {
   clearAllCache()
@@ -24,6 +26,14 @@ $(authorCheckbox).change(function () {
 $(autoRemoveCheckbox).prop('checked', false)
 $(autoRemoveCheckbox).change(function () {
   chrome.storage.local.set({ 'auto-select-force-remove': this.checked }, function () {
+    updateMessage('Setting Saved!')
+  })
+})
+
+$(apiKeySubmit).click(function () {
+  let apiKeyValue = $(apiKeyInput).val()
+  console.log(apiKeyValue)
+  chrome.storage.local.set({'api-key': apiKeyValue }, function () {
     updateMessage('Setting Saved!')
   })
 })
@@ -62,6 +72,15 @@ function loadSettings () {
       $(autoRemoveCheckbox).prop('checked', value)
     } else {
       $(autoRemoveCheckbox).prop('checked', false)
+    }
+  })
+
+  var apiKey = 'api-key'
+  settingExists(apiKey, function (exists, value) {
+    if (exists) {
+      $(apiKeyInput).val(value)
+    } else {
+      $(apiKeyInput).val('')
     }
   })
 }

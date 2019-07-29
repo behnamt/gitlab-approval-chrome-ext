@@ -21,6 +21,38 @@ function getGroupId () {
   return $('[name="group_id"]').val()
 }
 
+function addAssignMyselfAsApproverButton(apiKey) {
+  $('div.js-mr-approvals').append(`
+    <div class="flex-grow">
+        <button type="button" id="addAsApprover" class="btn btn-success btn-inverted btn-sm float-right">
+            <span class="text-3">&#43;</span>
+            Assign myself as approver
+        </button>
+     </div> 
+  `);
+
+  $("#addAsApprover").click(function() {
+      addCurrentUserAsApprover(apiKey);
+  })
+}
+
+function addCurrentUserAsApprover(apiKey) {
+  getCurrentUser()
+      .then(function (user) {
+          let userId = user.id
+          let projectId = getProjectId()
+          let mergeRequestId = window.location.pathname.split('/')[4];
+          getApprovals(projectId, mergeRequestId)
+              .then(function (mergeRequest) {
+                  let approvers = mergeRequest.approvers.map(approver => approver.user.id)
+                  approvers.push(userId)
+                  let approver_groups = mergeRequest.approver_groups.map(approver_group => approver_group.group.id)
+                  putUserAsApprover(apiKey, projectId, mergeRequestId, approvers, approver_groups)
+              })
+      })
+  window.location.reload()
+}
+
 /**
  * Scrapes through and gets the ids of the Merge Requests that are currently visible on the page.
  * @param {Integer} projectId the project id.
@@ -296,6 +328,10 @@ function getSettingsAndStart () {
         // Auto-check remove branch checkbox if setting is enabled
         if (!isNaN(settings['auto-select-force-remove'])) {
           $('#merge_request_force_remove_source_branch').prop('checked', settings['auto-select-force-remove'])
+        }
+      } else if ($.isNumeric(window.location.pathname.split('/')[4])) {
+        if (!isNaN(settings['api-key'])) {
+          addAssignMyselfAsApproverButton(settings['api-key'])
         }
       } else {
         // Get all merge requests for a project view
