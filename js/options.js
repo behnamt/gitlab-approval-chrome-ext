@@ -6,10 +6,20 @@ var authorCheckbox = 'input[name=author]'
 var autoRemoveCheckbox = 'input[name=auto-select-force-remove]'
 var apiKeyInput = 'input[name=api-key]'
 var apiKeySubmit = 'input[name=api-key-submit]'
+var apiKey = 'api-key'
 
 $("#clear-cache").click(function () {
-  clearAllCache()
-})
+  settingExists(apiKey, function (exists) {
+    if (exists) {
+      var userAnswer = confirm('Are you sure you want to clear cache? your personal API key will be lost!!');
+      if (userAnswer){
+        clearAllCache();
+      }
+    } else {
+      clearAllCache();
+    }
+  })
+});
 
 $(compactApprovalCheckbox).change(function () {
   chrome.storage.local.set({ 'compact-approval': this.checked }, function () {
@@ -32,7 +42,6 @@ $(autoRemoveCheckbox).change(function () {
 
 $(apiKeySubmit).click(function () {
   let apiKeyValue = $(apiKeyInput).val()
-  console.log(apiKeyValue)
   chrome.storage.local.set({'api-key': apiKeyValue }, function () {
     updateMessage('Setting Saved!')
   })
@@ -75,7 +84,6 @@ function loadSettings () {
     }
   })
 
-  var apiKey = 'api-key'
   settingExists(apiKey, function (exists, value) {
     if (exists) {
       $(apiKeyInput).val(value)

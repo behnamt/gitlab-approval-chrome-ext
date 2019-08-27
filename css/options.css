@@ -24,3 +24,16 @@ img.avatar.avatar-inline.w30.green {
     left: auto;
     right: 22px;
 }
+
+.no-api-key-warning {
+    line-height: 10px;
+    flex-direction: row-reverse;
+    display: flex;
+    flex-grow: 1;
+}
+
+.no-api-key-warning__icon {
+    width: 16px;
+    height: 16px;
+    fill: darkorange;
+}
