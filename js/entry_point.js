@@ -30,14 +30,20 @@ function getSettingsAndStart () {
                     // No need to fetch; we have all the required project ids
                     parseMergeRequestsOnPage(null)
                 }
-            } else if (window.location.href.indexOf('new') !== -1) {
+            }
+            // When on a new MR
+            else if (window.location.href.indexOf('new') !== -1) {
                 // Auto-check remove branch checkbox if setting is enabled
                 if (!isNaN(settings['auto-select-force-remove'])) {
                     $('#merge_request_force_remove_source_branch').prop('checked', settings['auto-select-force-remove'])
                 }
-            } else if ($.isNumeric(window.location.pathname.split('/')[4])) {
+            }
+            // When viewing an MR
+            else if ($.isNumeric(window.location.pathname.split('/')[4])) {
                 addAssignMyselfAsApproverButton(!isNaN(settings['api-key']) ? settings['api-key'] : false)
-            } else {
+            }
+            // When on MR listing
+            else {
                 // Get all merge requests for a project view
                 parseMergeRequestsOnPage(getProjectId())
             }
