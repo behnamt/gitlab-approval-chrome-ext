@@ -1,7 +1,9 @@
 'use strict'
 
 const HTTP_GET = 'GET'
+const HTTP_POST = 'POST'
 const HTTP_PUT = 'PUT'
+const HTTP_DELETE = 'DELETE'
 var svcHost = 'https://' + (new URL(window.location.href).hostname) + '/api/v4'
 
 /**
@@ -65,6 +67,49 @@ function getAwardEmoji (projectId, mergeRequestId) {
 }
 
 /**
+ * Fetch project's protected branches
+ * @param apiKey
+ * @param projectId
+ * @param branchName
+ * @return {xhr}
+ */
+function getProtectedBranch(apiKey, projectId, branchName) {
+  return makeXhrRequest(
+      HTTP_GET,
+      `${svcHost}/projects/${projectId}/protected_branches/${branchName}?private_token=${apiKey}`
+  )
+}
+
+/**
+ * Delete a protected branch (make it unprotected)
+ * @param apiKey
+ * @param projectId
+ * @param branchName
+ * @return {xhr}
+ */
+function unprotectBranch(apiKey, projectId, branchName) {
+  return makeXhrRequest(
+      HTTP_DELETE,
+      `${svcHost}/projects/${projectId}/protected_branches/${branchName}?private_token=${apiKey}`
+  )
+}
+
+/**
+ * Add a new protected branch
+ * @param apiKey
+ * @param projectId
+ * @param branchName
+ * @param accessLevels {push, merge, unprotect}
+ * @return {xhr}
+ */
+function protectBranch(apiKey, projectId, branchName, accessLevels) {
+  return makeXhrRequest(
+      HTTP_POST,
+      `${svcHost}/projects/${projectId}/protected_branches?private_token=${apiKey}&name=${branchName}&push_access_level=${accessLevels.push}&merge_access_level=${accessLevels.merge}&unprotect_access_level=${accessLevels.unprotect}`
+  )
+}
+
+/**
  * Fetches all project Ids for a given group via an Xhr request.
  * @param {Integer} groupId the group id.
  * @returns xhr response.
@@ -92,7 +137,7 @@ function makeXhrRequest (method, url) {
     // When the function loads
     xhr.onload = function () {
       if (xhr.status >= 200 && xhr.status < 300) {
-        return resolve(JSON.parse(xhr.response))
+        return resolve(xhr.response === "" ? {} : JSON.parse(xhr.response))
       } else {
         reject(Error({
           status: xhr.status,

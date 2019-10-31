@@ -23,7 +23,8 @@
                 "js/show_approvals.js",
                 "js/approver_button.js",
                 "js/cache_util.js",
-                "js/qa_links.js"
+                "js/qa_links.js",
+                "js/merging.js"
             ],
             "css": ["css/options.css"]
         }

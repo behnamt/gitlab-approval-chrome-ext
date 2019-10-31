@@ -1,4 +1,5 @@
 'use-strict'
+
 /*
  * Loads up the settings, and then begins pulling in the merge request approval info.
  */
@@ -46,6 +47,7 @@ function getSettingsAndStart () {
             else {
                 // Get all merge requests for a project view
                 parseMergeRequestsOnPage(getProjectId())
+                addBlockMergesToDevelop(!isNaN(settings['api-key']) ? settings['api-key'] : false)
             }
         }
     })
