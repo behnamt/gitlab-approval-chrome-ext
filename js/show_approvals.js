@@ -28,30 +28,27 @@ function getGroupId () {
 function parseMergeRequestsOnPage (projectId) {
   $('li.merge-request').each(function (index) {
     // Parse out the Merge Request Iid (used for getting appr)
-    var requestView = $(this)
-    var ref = $(this).find('.merge-request-title-text a:first').attr('href').split('/')
-    var requestIid = ref[ref.length - 1]
+    var requestView = $(this);
+    var ref = $(this).find('.merge-request-title-text a:first').attr('href').split('/');
+    var requestIid = ref[ref.length - 1];
     if (isNaN(projectId)) {
-      var projectName = $(requestView).find('.merge-request-title-text a:first').attr('href').split('/merge_requests/')[0].substring(1)
+      var projectName = $(requestView).find('.merge-request-title-text a:first').attr('href').split('/merge_requests/')[0].substring(1);
       getCachedProjectId(projectName, function (projectIdd) {
-        getCachedMergeRequest(`${projectIdd}:${requestIid}`, function (cachedResult) {
-          let checkDate = new Date(cachedResult.updated_at) < new Date($(requestView).find('.issuable-updated-at').find('time').attr('datetime'))
-          if (checkDate) {
-            onCacheEntryChecked(projectIdd, requestIid, requestView)
-          } else {
-            onCacheEntryChecked(projectIdd, requestIid, requestView, cachedResult)
-          }
-        })
+        getMergeRequestFromCacheByProjectIdentifier(projectIdd, requestView, requestIid);
       })
     } else {
-      getCachedMergeRequest(`${projectId}:${requestIid}`, function (cachedResult) {
-        let checkDate = new Date(cachedResult.updated_at) < new Date($(requestView).find('.issuable-updated-at').find('time').attr('datetime'))
-        if (checkDate) {
-          onCacheEntryChecked(projectId, requestIid, requestView)
-        } else {
-          onCacheEntryChecked(projectId, requestIid, requestView, cachedResult)
-        }
-      })
+      getMergeRequestFromCacheByProjectIdentifier(projectId, requestView, requestIid)
+    }
+  })
+}
+
+function getMergeRequestFromCacheByProjectIdentifier(projectIdentifier, requestView, requestIid) {
+  getCachedMergeRequest(`${projectIdentifier}:${requestIid}`, function (cachedResult) {
+    let checkDate = new Date(cachedResult.updated_at) < new Date($(requestView).find('.issuable-updated-at').find('time').attr('datetime'))
+    if (checkDate) {
+      onCacheEntryChecked(projectIdentifier, requestIid, requestView);
+    } else {
+      onCacheEntryChecked(projectIdentifier, requestIid, requestView, cachedResult);
     }
   })
 }
@@ -93,8 +90,6 @@ function parseApprovals (projectId, mergeRequestId, requestView) {
               handleMergeRequestApprovalInjection(mergeRequestId, mergeRequest, requestView, awardEmojis)
             })
       })
-
-
 }
 
 function handleMergeRequestmergeRequestAwardEmojis(mergeRequestAwardEmojis) {
